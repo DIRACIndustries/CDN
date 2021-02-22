@@ -1,0 +1,18 @@
+{
+  "name": "cdn",
+  "version": "1.0.0",
+  "description": "CDN for DIRAC Industries",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gh-pages -d CDN"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-admin:DIRACIndustries/CDN.git"
+  },
+  "author": "Wim Suenens",
+  "license": "ISC",
+  "dependencies": {
+    "gh-pages": "^3.1.0"
+  }
+}
