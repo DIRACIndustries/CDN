@@ -1,0 +1,7 @@
+{
+    "baseUrl": "/SuiteScripts/DiracScripts", 
+    "paths": {
+        "lodash": "lib/lodash/lodash.min",
+        "netsuite": "custom/netsuite"
+    }
+}

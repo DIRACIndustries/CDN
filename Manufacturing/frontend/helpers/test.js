@@ -1,0 +1,1 @@
+export const MyTest = "Hello World"

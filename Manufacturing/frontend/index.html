@@ -1,0 +1,479 @@
+<!-- private : https://4439744.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1807&deploy=1 -->
+<!-- public : https://4439744.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=1807&deploy=1&compid=4439744&h=99424fd370457e63ee78 -->
+
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" ng-controller="MenuController">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{routingService.title}}</title>
+    <link rel="icon" type="image/png" href="https://4439744.app.netsuite.com/core/media/media.nl?id=1048635&c=4439744&h=a39a20bd13cb3e0d8693"/>
+
+    <link rel="stylesheet" href="https://gitcdn.xyz/cdn/angular/bower-material/master/angular-material.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/md-data-table/1.8.0/md-data-table-style.css"> -->
+    <link rel="stylesheet" href="https://rawgit.com/daniel-nagy/md-data-table/master/dist/md-data-table.css">
+
+    <style>
+        md-select[ng-disabled="true"] > .md-select-value > .md-select-icon {
+            display: none !important;
+        }
+        md-select[ng-disabled="true"] > .md-select-value > span {
+            color: rgba(0, 0, 0, 0.87) !important;
+        }
+        canvas {
+            position: absolute;
+            z-index: 1000;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <!-- AngularJS Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.js"></script>
+    <script src="https://code.angularjs.org/1.8.0/angular-route.min.js"></script>
+
+    <!-- AngularJS Material Dependencies -->
+    <script src="https://gitcdn.xyz/cdn/angular/bower-material/master/angular-material.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-animate.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-aria.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-messages.min.js"></script>
+
+    <script src="https://rawgit.com/daniel-nagy/md-data-table/master/dist/md-data-table.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.4/umd/index.min.js"></script>
+
+    <script src="https://diracindustries.github.io/CDN/face-api/face-api.js"></script>
+    
+</head>
+<body layout="column">
+    <section layout="row">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+                <md-button class="md-icon-button" aria-label="Menu" ng-click="routingService.toggleSidenav()">
+                    <md-icon ng-bind="'menu'"></md-icon> 
+                </md-button>
+                <md-button class="md-icon-button" aria-label="Home" ng-click="routingService.goTo('/')">
+                    <md-icon ng-bind="'home'"></md-icon> 
+                </md-button>
+                <h1 flex md-truncate>{{routingService.title}}</h1>
+                <md-button class="md-icon-button" aria-label="Scan" ng-show="scannerService.openScanner" ng-click="scannerService.openScanner()">
+                    <md-icon ng-bind="'camera_alt'"></md-icon>
+                </md-button>
+                <md-button class="md-icon-button" aria-label="More">
+                    <md-icon ng-bind="'more_vert'"></md-icon> 
+                </md-button>
+            </div>
+        </md-toolbar>
+    </section>
+    <section layout="row" style="height: -webkit-fill-available;">
+        <md-sidenav class="md-sidenav-left" md-component-id="SidenavMenu" md-whiteframe="4">
+            <md-toolbar class="md-theme-indigo">
+                <div class="md-toolbar-tools">
+                    <md-button class="md-icon-button" aria-label="Close" ng-click="routingService.toggleSidenav()">
+                        <md-icon ng-bind="'close'"></md-icon> 
+                    </md-button>
+                    <h2 flex md-truncate>Menu</h2>
+                </div>    
+            </md-toolbar>
+            <md-content layout="column">
+
+                <!-- <md-menu-item ng-repeat="link in links">
+                  <md-button ng-click="routingService.goTo(link.url)">{{link.name}}</md-button>
+                </md-menu-item> -->
+
+                <!-- <md-menu ng-repeat="link in newLinks">
+                    <md-menu-item aria-label="Open menu">
+                        <md-button ng-click="$mdMenu.open($event)">{{link.tool}}</md-button>
+                    </md-menu-item>
+                    <md-menu-content width="5">
+                        <md-menu-item ng-repeat="menu in link.menu">
+                            <md-button ng-click="onClick(menu.name)">{{menu.name}}</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu> -->
+
+                <div class="md-accordion" ng-repeat="link in links">
+                    <md-toolbar ng-init="link.expanded = false" ng-click="collapseAll(link)">
+                        <div class="md-toolbar-tools">
+                            <h2>
+                                <span>{{link.tool}}</span>
+                            </h2>
+                            <span flex=""></span>
+                            <span ng-class="{expandCollapse:true, active:link.expanded}"></span> 
+                        </div>
+                    </md-toolbar>
+                    <div ng-class="{dataContent:true, activeContent:link.expanded}" layout="column">
+                        <md-menu-item ng-repeat="menu in link.menu">
+                            <md-button ng-click="routingService.goTo(menu.url)">{{menu.name}}</md-button>
+                        </md-menu-item>
+                    </div>
+                </div>
+
+            </md-content>
+        </md-sidenav>
+        <md-content ng-view flex></md-content>
+    </section>
+
+    <script type="module">
+        let CDN_URL = "https://diracindustries.github.io/CDN/"
+        CDN_URL = "http://127.0.0.1:5500/CDN/"
+
+        // import { MyTest } from `${CND_URL}/Manufacturing/frontend/helpers/test.js`
+        // console.log(MyTest)
+
+        const APP_URL = "https://4439744.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=1807&deploy=1&compid=4439744&h=99424fd370457e63ee78"
+        const FACE_API_URL = `${CDN_URL}/lib/face-api/models`
+
+        const myApp = angular.module("myApp", ['ngRoute', 'ngMaterial', 'md.data.table']);
+
+        myApp.service('routingService', function ($location, $mdSidenav) {
+            const $scope = this;
+
+            $scope.title = 'Manufacturing | DIRAC Industries';
+
+            $scope.toggleSidenav = function() {
+                const sideNav = $mdSidenav('SidenavMenu')
+                sideNav.toggle();
+            };
+        
+            $scope.goTo = function(route) {
+                $location.url(route)
+                const sideNav = $mdSidenav('SidenavMenu')
+                if (sideNav.isOpen()) {
+                    sideNav.toggle();
+                }
+            }
+
+            $scope.setTitle = function(args) {
+                $scope.title = args.title;
+            }
+        })
+
+        myApp.service('scannerService', function($mdDialog) {
+            const $scope = this;
+
+            let constraints = {
+                video: {
+                    facingMode: "user"
+                }
+            };
+
+            const $scopes = {}
+            $scope.applyScope = function(args) {
+                $scopes[args.name] = args.scope;          
+            }
+
+            let video;
+            let videoParent;
+            let detectionInterval;
+            let scannerStream;
+
+            const videoPlayListener = function() {
+                const displaySize = { width: video.width, height: video.height };
+                const canvas = faceapi.createCanvas(displaySize)
+                videoParent.append(canvas)
+
+                detectionInterval = setInterval(async () => {
+                    const detections = await faceapi.detectAllFaces(
+                        video,
+                        new faceapi.TinyFaceDetectorOptions()
+                    )
+                        .withFaceLandmarks()
+                        .withFaceExpressions()
+                        .withFaceDescriptors();
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    if (detections) {
+                        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                        faceapi.draw.drawDetections(canvas, resizedDetections);
+                        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+                        faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+                    }
+                }, 300)
+            }
+
+            $scope.clearScanner = function() {
+                if (detectionInterval) {
+                    clearInterval(detectionInterval)
+                }
+                window.scannerStream = scannerStream;
+                if (scannerStream && scannerStream.active) {
+                    scannerStream.getVideoTracks().forEach(track => track.stop())
+                }
+                if (video) {
+                    video.removeEventListener('play', videoPlayListener);
+                }
+            }
+
+            const BarcodeFormat = ZXing.BarcodeFormat;
+            const DecodeHintType = ZXing.DecodeHintType;
+            const BrowserMultiFormatReader = ZXing.BrowserMultiFormatReader;
+
+            const hints = new Map();
+            const enabledFormats = [
+                BarcodeFormat.CODE_128,
+                BarcodeFormat.DATA_MATRIX,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.QR_CODE,
+                BarcodeFormat.CODABAR
+            ];
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, enabledFormats);
+            $scope.codeReader = new BrowserMultiFormatReader(hints, 300);
+
+
+            navigator.mediaDevices.enumerateDevices().then(devices => {
+                $scope.availableDevices = devices.filter(device => device.kind === 'videoinput');
+                console.log($scope.availableDevices)
+                
+                // $scope.setStream = function(deviceId) {
+                //     let constraints = {
+                //         video: {
+                //             facingMode: "user"
+                //         }
+                //     };
+                //     if (deviceId) {
+                //         constraints = {
+                //             video: {
+                //                 deviceId: deviceId
+                //             }
+                //         };
+                //     }
+                //     navigator.mediaDevices
+                //         .getUserMedia(constraints)
+                //         .then(stream => {
+                //             $scope.stream = stream;
+                //             if ($scope.stream) {
+                //                 $scope.element.nativeElement.srcObject = $scope.stream;
+                //             }
+                //             if (!deviceId && stream) {
+                //                 $scope.currentDevice = $scope.availableDevices.find(device => device.deviceId === stream.getTracks()[0].getSettings().deviceId);
+                //                 $scope.device.setValue($scope.currentDevice.deviceId);
+                //             }
+                //         })
+                //         .catch(console.error);
+
+                // }
+
+                
+
+                // this.decodeFromVideoElementContinuously(this.videoPlayer.nativeElement);
+                // $scope.setStream();
+                
+
+            });
+
+
+            Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri(FACE_API_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(FACE_API_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(FACE_API_URL),
+                faceapi.nets.faceExpressionNet.loadFromUri(FACE_API_URL),
+            ]).then(function () {
+
+                $scope.openScanner = function() {
+                    return $mdDialog
+                        .show({
+                            template: `
+                                <div id="videoParent" style="display: flex; justify-content: center; align-item: center">
+                                    <video id="videoPlayer"
+                                        width="720"
+                                        height="560"
+                                        autoplay
+                                        muted
+                                        >
+                                    </video>
+                                </div>
+                            `,
+                            parent: angular.element(document.body),
+                            // targetEvent: ev,
+                            clickOutsideToClose: true,
+                            fullscreen: true, // Only for -xs, -sm breakpoints.
+                            controller: function($scope, $timeout) {
+                                
+                                $timeout(function() {
+                                    video = document.getElementById('videoPlayer')
+                                    videoParent = document.getElementById('videoParent')
+
+                                    video.addEventListener('play', videoPlayListener)
+        
+                                    navigator.mediaDevices.getUserMedia(constraints)
+                                        .then((stream) => {
+                                            if (stream) {
+                                                scannerStream = video.srcObject = stream;
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            console.error(error)
+                                        })
+                                })
+
+                            },
+                        })
+                        .then(function (data) {
+                            $scope.clearScanner()
+                            console.log(data)
+                            return data;
+                        }, function () {
+                            $scope.clearScanner()
+                            return null;
+                        });
+
+                }
+
+                Object.values($scopes).forEach(function(scope) {
+                    scope.$digest()
+                })
+
+            })
+
+        })
+
+        myApp.service('locationService', function ($http, $location, $mdSidenav) {
+            const $scope = this;
+
+            $scope.getLocation = () => {
+                if ($scope.locationPromise) {
+                    return $scope.locationPromise;
+                }
+                return $scope.locationPromise = $http
+                    .get(`${APP_URL}&type=getLocationByIP`)
+                    .then(function(response) {
+                        return $scope.location = response.data.location;
+                    })
+            }
+
+            $scope.getEmployees = () => {
+                return $scope.getLocation().then(location => {
+                    if (location) {
+                        return $scope.locationPromise = $http
+                            .get(`${APP_URL}&type=getEmployeesByLocation&locationID=${location.internalid}`)
+                            .then(function(response) {
+                                return $scope.employees = response.data.employees;
+                            })
+                    } else {
+                        return null;
+                    }
+                })
+            }
+
+        })
+
+        myApp.controller('MenuController', function($scope, routingService, scannerService) {
+            $scope.routingService = routingService;
+            $scope.scannerService = scannerService;
+
+            $scope.scannerService.applyScope({
+                name: 'menu',
+                scope: $scope
+            })
+
+            $scope.links = [
+                // {
+                //     tool: 'Checklists',
+                //     menu: [
+                //         { name: 'Immersion Heater', url: '/checklists/immersion-heater' },
+                //         { name: '...', url: '/' },
+                //     ]
+                // },
+                // {
+                //     tool: 'Calculators',
+                //     menu: [
+                //         { name: 'ER', url: '/calculators/ER' },
+                //         { name: '...', url: '/' },
+                //     ]
+                // },
+            ];
+
+            $scope.collapseAll = function(data) {
+                $scope.links.map(link => {
+                    if(link != data) {
+                        link.expanded = false;   
+                    }
+                })
+                data.expanded = !data.expanded;
+            };
+
+            $scope.onClick = function onClick(item) {
+                // $log.log(item);
+            };
+            
+        });
+
+        const HomeController = {
+            template: `
+                <md-content layout="row" layout-xs="column" layout-padding layout-wrap>
+                    <div ng-repeat="link in links" flex-gt-xs="25" flex="100">
+                        <md-card style="cursor: pointer;" ng-click="routingService.goTo(link.url)">
+                            <div style="padding: 15px;">
+                            <img style="width: 100%;" ng-src="{{link.image}}" class="md-card-image" alt="{{link.label}}">
+                            <md-card-title>
+                                <md-card-title-text>
+                                    <span class="md-subhead" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ link.label }}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            </div>
+                        </md-card>
+                    </div>
+                </md-content>
+            `,
+            controller: function($scope, routingService) {
+                $scope.routingService = routingService;
+
+                $scope.routingService.setTitle({ title: 'Manufacturing | DIRAC Industries'})
+
+                $scope.links = [
+                    {
+                        label: "Departments",
+                        url: "/departments",
+                        image: "https://4439744.app.netsuite.com/core/media/media.nl?id=1210275&c=4439744&h=5LPNJRLXwhpZD5eEvCC9D6XxZv42jNr3mNeCnAYL3Igg9v5Y"
+                    },
+                ]
+
+                
+
+            }
+        }
+
+        const DepartmentsController = {
+            template: `
+                <div>Hello World</div>
+            `,
+            controller: function($scope, routingService) {
+                $scope.routingService = routingService;
+
+                $scope.routingService.setTitle({ title: 'Departments | Manufacturing'})
+
+                console.log($scope)
+            }
+        }
+
+        const EmployeesController = {
+            template: `
+                <div>Hello employees</div>
+            `,
+            controller: function($scope, locationService) {
+                locationService.getEmployees().then(employees => {
+                    console.log(employees)
+                })
+
+            }
+        }
+
+        myApp.config(function ($routeProvider) {
+            $routeProvider.when('/', HomeController)
+            $routeProvider.when('/departments', DepartmentsController)
+            $routeProvider.when('/employees', EmployeesController)
+            // $routeProvider.when('/bins', BinsController)
+            // $routeProvider.when('/bins/:_ID', BinsController)
+
+            $routeProvider.otherwise({
+                redirectTo: '/'
+            })
+        })
+
+    </script>
+</body>
+</html>
+
