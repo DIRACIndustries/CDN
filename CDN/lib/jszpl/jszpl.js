@@ -1,6 +1,7 @@
 "use strict";
 
-var FontFamilyDefinition = require('https://diracindustries.github.io/CDN/lib/jszpl/b64-fonts');
+import { FontFamilyDefinition } from "https://diracindustries.github.io/CDN/lib/jszpl/b64-fonts.js"
+
 FontFamilyDefinition.initialize();
 
 /* Properties */
@@ -1343,7 +1344,7 @@ var ZPLImageTools = {
   }
 };
 
-module.exports = {
+export const jszpl = {
   SizeType: SizeType,
   Rotation: Rotation,
   PrintDensityName: PrintDensityName,

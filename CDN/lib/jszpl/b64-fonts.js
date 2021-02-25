@@ -1,8 +1,9 @@
-var base64 = require('https://diracindustries.github.io/CDN/lib/jszpl/base64');
+// var base64 = require('https://diracindustries.github.io/CDN/lib/jszpl/base64');
+import { base64 } from "https://diracindustries.github.io/CDN/lib/jszpl/base64.js"
 
 function initialize() {
-  for (var f_id in self) {
-    var character = self[f_id];
+  for (var f_id in FontFamilyDefinition) {
+    var character = FontFamilyDefinition[f_id];
     if (character.spacing == undefined)
     {
       continue;
@@ -24,7 +25,7 @@ function initialize() {
   }
 }
 
-var self = module.exports = {
+export const FontFamilyDefinition = {
   initialize: initialize,
   'A': {
     name: 'FONT_A',
