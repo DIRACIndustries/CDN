@@ -1,4 +1,4 @@
-var base64 = require('./base64');
+var base64 = require('https://diracindustries.github.io/CDN/lib/jszpl/base64');
 
 function initialize() {
   for (var f_id in self) {
