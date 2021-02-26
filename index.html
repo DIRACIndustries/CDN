@@ -5,13 +5,92 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script type="module" src="./CDN/lib/jszpl/jszpl.js"></script>
+    <script src="./CDN/lib/zpl-image/pako.js"></script>
+    <script src="./CDN/lib/zpl-image/zpl-image.js"></script>
+    <script src="./CDN/lib/kjua/kjua-0.9.0.min.js"></script>
 </head>
 <body>
     <div>Hello</div>
+    <canvas id="canvas" style="border-color: tomato; border-style: solid; border-radius: 23px;"></canvas>
+    <button id="rotate">rotate canvas</button>
+
     <script type="module">
         import { jszpl } from "./CDN/lib/jszpl/jszpl.js"
         window.jszpl = jszpl
+
+        const canvas = document.getElementById('canvas')
+        canvas.width  = 440;
+        canvas.height = 560;
+        var cw = canvas.width;
+        var ch = canvas.height;
+
+        const context = canvas.getContext('2d');
+
+        console.log(canvas)
+        console.log(context)
+        const object = {
+            _ID: 123,
+            name: 'workcenter A',
+            text: 'some text',
+            texta: 'some text',
+            textv: 'some text',
+            texts: 'some text',
+            textf: 'some text',
+
+        }
+        const img = kjua({text: JSON.stringify(object)});
+        console.log(img)
+        img.onload = function(){
+            context.drawImage(img, 0, 0, 440, 440);
+            context.font = "24px Arial";
+            context.fillText("Hello World", 40, 450);
+        }
+
+        var button = document.getElementById("rotate");
+        button.onclick = function () {
+            // rotate the canvas 90 degrees each time the button is pressed
+            rotate();
+        }
+
+        var myImage, rotating = false;   
+
+        var rotate = function () {
+            if (!rotating) {
+                rotating = true;            
+                // store current data to an image
+                myImage = new Image();
+                myImage.src = canvas.toDataURL();
+
+            myImage.onload = function () {
+                    // reset the canvas with new dimensions
+                    canvas.width = ch;
+                    canvas.height = cw;
+                    cw = canvas.width;
+                    ch = canvas.height;
+
+                    context.save();
+                    // translate and rotate
+                    context.translate(cw, ch / cw);
+                    context.rotate(Math.PI / 2);
+                    // draw the previows image, now rotated
+                    context.drawImage(myImage, 0, 0);               
+                    context.restore();
+                
+                    // clear the temporary image
+                    myImage = null;
+                
+                    rotating = false;   
+                    let res = imageToZ64(canvas);
+                    console.log(res)
+                    window.res = res
+                    let zpl = `^GFA,${res.length},${res.length},${res.rowlen},${res.z64}`;
+                    console.log(zpl)
+                    window.zpl = zpl
+            
+                }
+            }
+        }
+
     
     </script>
     
