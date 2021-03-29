@@ -8,88 +8,150 @@
     <script src="./CDN/lib/zpl-image/pako.js"></script>
     <script src="./CDN/lib/zpl-image/zpl-image.js"></script>
     <script src="./CDN/lib/kjua/kjua-0.9.0.min.js"></script>
+    <script src="./CDN/lib/qrcode-svg/qrcode.js"></script>
+    
 </head>
 <body>
+
     <div>Hello</div>
     <canvas id="canvas" style="border-color: tomato; border-style: solid; border-radius: 23px;"></canvas>
     <button id="rotate">rotate canvas</button>
 
     <script type="module">
+
         import { jszpl } from "./CDN/lib/jszpl/jszpl.js"
-        window.jszpl = jszpl
+        
+        var content = {
+            _ID: 98765644,
+            __typeName: 'MySpecialTypeName',
+            name: 'Hello World',
+            lot: `${new Date().toISOString()} | PO/BE123456`
+        }
+        window.QRCode = QRCode;
+        var qrcode = new QRCode({
+            content: JSON.stringify(content),
+            padding: 2,
+            width: 256,
+            height: 256,
+            color: "#000000",
+            background: "#ffffff",
+            ecl: "M",
+        });
+
+        // var modules = qrcode.qrcode.modules;
+
+        // var ascii = '';
+        // var length = modules.length;
+        // for (var y = 0; y < length; y++) {
+        //     for (var x = 0; x < length; x++) {
+        //         var module = modules[x][y];
+        //         ascii += (module ? 'x' : ' ');
+        //     }
+        //     ascii += '\r\n';
+        // }
+        // console.log(ascii);
+
+        window.qrcode = qrcode;
+        var svg = qrcode.svg();
+
+        function getSvgNode(svg) {
+            var div = document.createElement('div')
+            div.innerHTML = svg;
+            return div.children[0]
+        }
+        var svgNode = getSvgNode(svg)
+
+        var xml = new XMLSerializer().serializeToString(svgNode);
+
+        // make it base64
+        var svg64 = btoa(xml);
+        var b64Start = 'data:image/svg+xml;base64,';
+
+        // prepend a "header"
+        var image64 = b64Start + svg64;
 
         const canvas = document.getElementById('canvas')
-        canvas.width  = 440;
-        canvas.height = 560;
-        var cw = canvas.width;
-        var ch = canvas.height;
-
+        canvas.width  = 256;
+        canvas.height = 256;
         const context = canvas.getContext('2d');
 
-        console.log(canvas)
-        console.log(context)
-        const object = {
-            _ID: 123,
-            name: 'workcenter A',
-            text: 'some text',
-            texta: 'some text',
-            textv: 'some text',
-            texts: 'some text',
-            textf: 'some text',
 
+        var img = new Image();
+        img.onload = function() {
+            context.drawImage(img, 0, 0);
         }
-        const img = kjua({text: JSON.stringify(object)});
-        console.log(img)
-        img.onload = function(){
-            context.drawImage(img, 0, 0, 440, 440);
-            context.font = "24px Arial";
-            context.fillText("Hello World", 40, 450);
-        }
+        img.src = image64;
 
-        var button = document.getElementById("rotate");
-        button.onclick = function () {
-            // rotate the canvas 90 degrees each time the button is pressed
-            rotate();
-        }
 
-        var myImage, rotating = false;   
 
-        var rotate = function () {
-            if (!rotating) {
-                rotating = true;            
-                // store current data to an image
-                myImage = new Image();
-                myImage.src = canvas.toDataURL();
+        // window.jszpl = jszpl
 
-            myImage.onload = function () {
-                    // reset the canvas with new dimensions
-                    canvas.width = ch;
-                    canvas.height = cw;
-                    cw = canvas.width;
-                    ch = canvas.height;
+        // const canvas = document.getElementById('canvas')
+        // canvas.width  = 440;
+        // canvas.height = 560;
+        // var cw = canvas.width;
+        // var ch = canvas.height;
 
-                    context.save();
-                    // translate and rotate
-                    context.translate(cw, ch / cw);
-                    context.rotate(Math.PI / 2);
-                    // draw the previows image, now rotated
-                    context.drawImage(myImage, 0, 0);               
-                    context.restore();
+        // const context = canvas.getContext('2d');
+        // const object = {
+        //     _ID: 123,
+        //     name: 'workcenter A',
+        //     text: 'some text',
+        //     texta: 'some text',
+        //     textv: 'some text',
+        //     texts: 'some text',
+        //     textf: 'some text',
+
+        // }
+        // const img = kjua({text: JSON.stringify(object)});
+        // img.onload = function(){
+        //     context.drawImage(img, 0, 0, 440, 440);
+        //     context.font = "24px Arial";
+        //     context.fillText("Hello World", 40, 450);
+        // }
+
+        // var button = document.getElementById("rotate");
+        // button.onclick = function () {
+        //     // rotate the canvas 90 degrees each time the button is pressed
+        //     rotate();
+        // }
+
+        // var myImage, rotating = false;   
+
+        // var rotate = function () {
+        //     if (!rotating) {
+        //         rotating = true;            
+        //         // store current data to an image
+        //         myImage = new Image();
+        //         myImage.src = canvas.toDataURL();
+
+        //     myImage.onload = function () {
+        //             // reset the canvas with new dimensions
+        //             canvas.width = ch;
+        //             canvas.height = cw;
+        //             cw = canvas.width;
+        //             ch = canvas.height;
+
+        //             context.save();
+        //             // translate and rotate
+        //             context.translate(cw, ch / cw);
+        //             context.rotate(Math.PI / 2);
+        //             // draw the previows image, now rotated
+        //             context.drawImage(myImage, 0, 0);               
+        //             context.restore();
                 
-                    // clear the temporary image
-                    myImage = null;
+        //             // clear the temporary image
+        //             myImage = null;
                 
-                    rotating = false;   
-                    let res = imageToZ64(canvas);
-                    console.log(res)
-                    window.res = res
-                    let zpl = `^GFA,${res.length},${res.length},${res.rowlen},${res.z64}`;
-                    console.log(zpl)
-                    window.zpl = zpl
+        //             rotating = false;   
+        //             let res = imageToZ64(canvas);
+        //             window.res = res
+        //             let zpl = `^GFA,${res.length},${res.length},${res.rowlen},${res.z64}`;
+        //             window.zpl = zpl
             
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
 
     
     </script>
